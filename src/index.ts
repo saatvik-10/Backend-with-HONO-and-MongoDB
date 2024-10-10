@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { poweredBy } from 'hono/powered-by';
 import { logger } from 'hono/logger';
 import dbConnect from './config/connect';
+import FavVidsModel from './schema/db';
 
 const app = new Hono();
 
@@ -10,7 +11,13 @@ app.use(poweredBy());
 app.use(logger());
 
 dbConnect()
-  .then()
+  .then(() => {
+    //GET
+    app.get('/', async (c) => {
+      const docs = await FavVidsModel.find();
+      return c.json(docs.map((doc) => doc.toObject(), 200));
+    });
+  })
   .catch((err) => {
     app.get('/*', (c) => {
       return c.text(`Error connecting to database: ${err.message}`);

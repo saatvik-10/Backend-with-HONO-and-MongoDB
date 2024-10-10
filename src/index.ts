@@ -37,6 +37,8 @@ dbConnect()
     });
 
     //View doc by ID
+
+    //1st GET Route
     app.get('/:documentID', async (c) => {
       const id = c.req.param('documentID');
       if (!isValidObjectId(id)) {
@@ -50,6 +52,7 @@ dbConnect()
       return c.json(doc.toObject(), 200);
     });
 
+    //2nd GET Route
     app.get('/d/:documentID', async (c) => {
       const id = c.req.param('documentID');
       if (!isValidObjectId(id)) {
@@ -72,6 +75,7 @@ dbConnect()
       });
     });
 
+    //Update Route
     app.patch('/:documentID', async (c) => {
       const id = c.req.param('documentID');
       if (!isValidObjectId(id)) {
@@ -99,6 +103,7 @@ dbConnect()
       }
     });
 
+    //Delete Route
     app.delete('/:documentID', async (c) => {
       const id = c.req.param('documentID');
       if (!isValidObjectId) {

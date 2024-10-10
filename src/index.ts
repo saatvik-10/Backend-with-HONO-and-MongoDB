@@ -21,4 +21,8 @@ app.get('/', (c) => {
   return c.text('Hello Hono!');
 });
 
+app.onError((err, c) => {
+  return c.text(`App Error: ${err.message}`);
+});
+
 export default app;

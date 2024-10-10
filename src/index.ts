@@ -3,6 +3,8 @@ import { poweredBy } from 'hono/powered-by';
 import { logger } from 'hono/logger';
 import dbConnect from './config/connect';
 import FavVidsModel from './schema/db';
+import { isValidObjectId } from 'mongoose';
+import { stream, streamText, streamSSE } from 'hono/streaming';
 
 const app = new Hono();
 
@@ -32,6 +34,42 @@ dbConnect()
       } catch (err) {
         return c.json((err as any)?.message || 'Internal Server Error', 500);
       }
+    });
+
+    //View doc by ID
+    app.get('/:documentID', async (c) => {
+      const id = c.req.param('documentID');
+      if (!isValidObjectId(id)) {
+        return c.json('Invalid ID', 400);
+      }
+
+      const doc = await FavVidsModel.findById(id);
+      if (!doc) {
+        return c.json('Document not found', 404);
+      }
+      return c.json(doc.toObject(), 200);
+    });
+
+    app.get('/d/:documentID', async (c) => {
+      const id = c.req.param('documentID');
+      if (!isValidObjectId(id)) {
+        return c.json('Invalid ID', 400);
+      }
+
+      const doc = await FavVidsModel.findById(id);
+      if (!doc) {
+        return c.json('Document not found', 404);
+      }
+
+      return streamText(c, async (stream) => {
+        stream.onAbort(() => {
+          console.log('Aborted!');
+        });
+        for (let i = 0; i < doc.description.length; i++) {
+          await stream.write(doc.description[i]);
+          await stream.sleep(1000);
+        }
+      });
     });
   })
   .catch((err) => {

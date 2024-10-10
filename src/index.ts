@@ -17,6 +17,22 @@ dbConnect()
       const docs = await FavVidsModel.find();
       return c.json(docs.map((doc) => doc.toObject(), 200));
     });
+
+    //Creating a document
+    app.post('/', async (c) => {
+      const formData = await c.req.json();
+      if (!formData.thumbnail) {
+        delete formData.thumbnail;
+      }
+
+      const favVidsObj = new FavVidsModel(formData);
+      try {
+        const docs = await favVidsObj.save();
+        return c.json(docs.toObject(), 201);
+      } catch (err) {
+        return c.json((err as any)?.message || 'Internal Server Error', 500);
+      }
+    });
   })
   .catch((err) => {
     app.get('/*', (c) => {

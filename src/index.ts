@@ -98,6 +98,20 @@ dbConnect()
         return c.json((err as any)?.message || 'Internal Server Error', 500);
       }
     });
+
+    app.delete('/:documentID', async (c) => {
+      const id = c.req.param('documentID');
+      if (!isValidObjectId) {
+        return c.json('Invalid ID', 404);
+      }
+
+      try {
+        const deletedDoc = await FavVidsModel.findByIdAndDelete(id);
+        return c.json(deletedDoc?.toObject(), 200);
+      } catch (err) {
+        return c.json((err as any)?.message || 'Internal Server Error', 500);
+      }
+    });
   })
   .catch((err) => {
     app.get('/*', (c) => {

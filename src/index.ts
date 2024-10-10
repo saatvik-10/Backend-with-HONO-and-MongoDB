@@ -71,6 +71,33 @@ dbConnect()
         }
       });
     });
+
+    app.patch('/:documentID', async (c) => {
+      const id = c.req.param('documentID');
+      if (!isValidObjectId(id)) {
+        return c.json('Invalid ID', 400);
+      }
+
+      const doc = await FavVidsModel.findById(id);
+      if (!doc) {
+        return c.json('Document not found', 404);
+      }
+
+      const formData = await c.req.json();
+
+      if (!formData.thumbnail) {
+        delete formData.thumbnail;
+      }
+
+      try {
+        const updatedDoc = await FavVidsModel.findByIdAndUpdate(id, formData, {
+          new: true, //this will give an updated result
+        });
+        return c.json(updatedDoc?.toObject(), 200);
+      } catch (err) {
+        return c.json((err as any)?.message || 'Internal Server Error', 500);
+      }
+    });
   })
   .catch((err) => {
     app.get('/*', (c) => {

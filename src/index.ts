@@ -70,7 +70,7 @@ dbConnect()
         });
         for (let i = 0; i < doc.description.length; i++) {
           await stream.write(doc.description[i]);
-          await stream.sleep(1000);
+          await stream.sleep(100);
         }
       });
     });
